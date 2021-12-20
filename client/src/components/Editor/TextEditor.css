@@ -16,12 +16,17 @@
 
 .container .ql-toolbar.ql-snow {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   position: sticky;
   top: 0;
   z-index: 1;
   background-color: #f3f3f3;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+}
+
+.container .ql-editor {
+  padding: 15px;
 }
 
 @page {

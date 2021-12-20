@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
@@ -23,11 +24,12 @@ const TOOLBAR = [
 ];
 
 const TextEditor = () => {
+  const { id: documentId } = useParams();
   const [socket, setSocket] = useState();
   const [quill, setQuill] = useState();
 
+  //socket.io connection to server
   useEffect(() => {
-    //socket.io connection to server
     const s = io("http://localhost:3001");
     setSocket(s);
 
@@ -35,6 +37,35 @@ const TextEditor = () => {
       s.disconnect();
     };
   }, []);
+
+  // load saved document
+  useEffect(() => {
+    if (socket == null || quill == null) {
+      return;
+    }
+
+    socket.once("load-document", (document) => {
+      quill.setContents(document);
+      quill.enable();
+    });
+
+    socket.emit("get-document", documentId);
+  }, [socket, quill, documentId]);
+
+  // save document at every 2000 sec
+  useEffect(() => {
+    if (socket == null || quill == null) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      socket.emit("save-document", quill.getContents());
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [socket, quill]);
 
   // reciveing changes
   useEffect(() => {
@@ -86,6 +117,9 @@ const TextEditor = () => {
       },
       theme: "snow",
     });
+    setQuill(q);
+    q.disable(false);
+    q.setText("Loading...");
     setQuill(q);
   }, []);
 
