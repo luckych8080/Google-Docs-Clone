@@ -31,7 +31,9 @@ io.on("connection", (socket) => {
 });
 
 const findOrCreateDocument = async (id) => {
-  if (id == null) {return};
+  if (id == null) {
+    return;
+  }
 
   const document = await Document.findById(id);
   if (document) return document;
